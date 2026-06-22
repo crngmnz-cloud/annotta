@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#72243E" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ANNOTTA" />
+  <title>ANNOTTA</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --borgona: #72243E;
+      --borgona-claro: #9B3558;
+      --crema: #FBEAF0;
+      --crema-oscura: #F0D4DE;
+      --texto: #3A1020;
+      --muted: #A07080;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--crema);
+      color: var(--texto);
+      font-family: 'Georgia', serif;
+      overscroll-behavior: none;
+    }
+
+    /* ── LAYOUT PRINCIPAL ── */
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--borgona);
+      color: var(--crema);
+      padding: 16px 20px 12px;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      letter-spacing: 0.15em;
+      font-weight: normal;
+    }
+
+    header p {
+      font-size: 0.72rem;
+      opacity: 0.7;
+      letter-spacing: 0.05em;
+      margin-top: 2px;
+    }
+
+    /* ── CAJITA DE ENTRADA ── */
+    .entrada-wrap {
+      padding: 16px;
+      background: var(--crema);
+      flex-shrink: 0;
+    }
+
+    #entrada {
+      width: 100%;
+      min-height: 110px;
+      padding: 14px;
+      background: white;
+      border: 1.5px solid var(--crema-oscura);
+      border-radius: 12px;
+      font-family: 'Georgia', serif;
+      font-size: 1rem;
+      color: var(--texto);
+      resize: none;
+      outline: none;
+      line-height: 1.6;
+      transition: border-color 0.2s;
+    }
+
+    #entrada:focus {
+      border-color: var(--borgona);
+    }
+
+    #entrada::placeholder {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .botones {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    #btn-guardar {
+      flex: 1;
+      padding: 12px;
+      background: var(--borgona);
+      color: var(--crema);
+      border: none;
+      border-radius: 10px;
+      font-family: 'Georgia', serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #btn-guardar:active { background: var(--borgona-claro); }
+    #btn-guardar:disabled { opacity: 0.6; }
+
+    /* ── ESTADO / FEEDBACK ── */
+    #estado {
+      min-height: 22px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      padding: 0 16px 8px;
+      font-style: italic;
+      flex-shrink: 0;
+    }
+
+    /* ── SECCIONES ── */
+    .secciones {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .seccion {
+      background: white;
+      border-radius: 12px;
+      border-left: 4px solid var(--borgona);
+      overflow: hidden;
+    }
+
+    .seccion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: var(--crema-oscura);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .seccion-header h2 {
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      font-weight: bold;
+      color: var(--borgona);
+      text-transform: uppercase;
+    }
+
+    .seccion-count {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .seccion-cuerpo {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .nota {
+      padding: 11px 14px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      border-bottom: 1px solid var(--crema-oscura);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .nota:last-child { border-bottom: none; }
+
+    .nota-texto { flex: 1; }
+
+    .nota-fecha {
+      font-size: 0.68rem;
+      color: var(--muted);
+      white-space: nowrap;
+      padding-top: 2px;
+    }
+
+    .nota-eliminar {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0 2px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .nota-eliminar:hover { color: var(--borgona); }
+
+    .seccion-vacia {
+      padding: 12px 14px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── SPINNER ── */
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--crema-oscura);
+      border-top-color: var(--borgona);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>ANNOTTA</h1>
+    <p>tu cerebro externo</p>
+  </header>
+
+  <div class="entrada-wrap">
+    <textarea
+      id="entrada"
+      placeholder="Escribe cualquier cosa… la IA lo clasifica sola."
+      autocomplete="off"
+      autocorrect="on"
+      spellcheck="true"
+    ></textarea>
+    <div class="botones">
+      <button id="btn-guardar">Guardar</button>
+    </div>
+  </div>
+
+  <div id="estado"></div>
+
+  <div class="secciones" id="secciones"></div>
+</div>
+
+<script>
+  // ── CONSTANTES ──
+  const CATEGORIAS = ['Salud', 'Pendientes', 'Eventos', 'Diario'];
+  const STORAGE_KEY = 'annotta_notas';
+
+  // ── ESTADO ──
+  let notas = cargarNotas();
+
+  // ── ELEMENTOS ──
+  const entrada   = document.getElementById('entrada');
+  const btnGuardar = document.getElementById('btn-guardar');
+  const estadoEl  = document.getElementById('estado');
+  const seccionesEl = document.getElementById('secciones');
+
+  // ── FOCUS AUTOMÁTICO AL ABRIR ──
+  // Timeout corto para que el browser móvil ya haya pintado el layout
+  setTimeout(() => entrada.focus(), 300);
+
+  // ── GUARDAR CON ENTER (Shift+Enter = salto de línea) ──
+  entrada.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      guardar();
+    }
+  });
+
+  btnGuardar.addEventListener('click', guardar);
+
+  // ── GUARDAR ──
+  async function guardar() {
+    const texto = entrada.value.trim();
+    if (!texto) return;
+
+    setEstado('<span class="spinner"></span> Clasificando…');
+    btnGuardar.disabled = true;
+
+    let categoria = 'Diario';
+    try {
+      const resp = await fetch('/api/clasificar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texto })
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        categoria = data.categoria || 'Diario';
+      }
+    } catch {
+      // Sin conexión: guardamos como Diario
+    }
+
+    const nota = {
+      id: Date.now(),
+      texto,
+      categoria,
+      fecha: new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })
+    };
+
+    notas.push(nota);
+    guardarNotas();
+    renderSecciones();
+    entrada.value = '';
+    setEstado(`Guardado en <strong>${categoria}</strong>`);
+    setTimeout(() => setEstado(''), 2500);
+    btnGuardar.disabled = false;
+    entrada.focus();
+  }
+
+  // ── RENDER SECCIONES ──
+  function renderSecciones() {
+    seccionesEl.innerHTML = '';
+    CATEGORIAS.forEach(cat => {
+      const items = notas.filter(n => n.categoria === cat).reverse();
+      const sec = document.createElement('div');
+      sec.className = 'seccion';
+
+      const header = document.createElement('div');
+      header.className = 'seccion-header';
+      header.innerHTML = `
+        <h2>${icono(cat)} ${cat}</h2>
+        <span class="seccion-count">${items.length}</span>
+      `;
+
+      const cuerpo = document.createElement('div');
+      cuerpo.className = 'seccion-cuerpo';
+
+      if (items.length === 0) {
+        cuerpo.innerHTML = `<p class="seccion-vacia">Nada por aquí todavía.</p>`;
+      } else {
+        items.forEach(nota => {
+          const div = document.createElement('div');
+          div.className = 'nota';
+          div.innerHTML = `
+            <span class="nota-texto">${escapeHtml(nota.texto)}</span>
+            <span class="nota-fecha">${nota.fecha}</span>
+            <button class="nota-eliminar" aria-label="Eliminar" data-id="${nota.id}">×</button>
+          `;
+          cuerpo.appendChild(div);
+        });
+      }
+
+      sec.appendChild(header);
+      sec.appendChild(cuerpo);
+      seccionesEl.appendChild(sec);
+    });
+
+    // Delegación de eventos para eliminar
+    seccionesEl.querySelectorAll('.nota-eliminar').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = parseInt(btn.dataset.id);
+        notas = notas.filter(n => n.id !== id);
+        guardarNotas();
+        renderSecciones();
+      });
+    });
+  }
+
+  // ── HELPERS ──
+  function icono(cat) {
+    return { Salud: '♡', Pendientes: '○', Eventos: '◇', Diario: '✦' }[cat] || '·';
+  }
+
+  function setEstado(html) { estadoEl.innerHTML = html; }
+
+  function cargarNotas() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { return []; }
+  }
+
+  function guardarNotas() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notas));
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── SERVICE WORKER ──
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+
+  // ── RENDER INICIAL ──
+  renderSecciones();
+</script>
+</body>
+</html>
