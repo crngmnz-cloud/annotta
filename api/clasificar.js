@@ -16,22 +16,25 @@ export default async function handler(req, res) {
 
   const message = await client.messages.create({
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 60,
+    max_tokens: 200,
     messages: [{
       role: 'user',
       content: `Clasificá este texto. Respondé SOLO con JSON, sin explicación ni markdown.
 
-Categorías:
-- Salud: CUALQUIER dato corporal o médico — pulsaciones, presión arterial, glucosa, peso, temperatura, oxígeno, frecuencia cardíaca, síntomas (dolor, mareo, cansancio, fiebre, etc.), medicamentos, dosis, tratamientos, turnos médicos, análisis, resultados de laboratorio, bienestar físico o mental. Si hay un número que parece una medición corporal, es Salud.
-- Pendientes: tareas, recordatorios, cosas por hacer, llamadas a hacer, trámites
-- Eventos: fechas concretas, citas, reuniones, cumpleaños, planes futuros con fecha u hora
-- Compras: ítems para comprar, lista del súper, productos, ingredientes, marcas
-- Diario: pensamientos, sentimientos, reflexiones personales, lo que pasó hoy (solo si no encaja en ninguna categoría anterior)
+Categorías principales:
+- Salud: datos corporales o médicos — pulsaciones, presión, glucosa, peso, temperatura, síntomas, medicamentos, turnos médicos, análisis. Si hay una medición corporal, es Salud.
+- Pendientes: tareas, recordatorios, trámites, cosas por hacer
+- Eventos: fechas concretas, citas, reuniones, planes futuros con fecha u hora
+- Compras: productos para comprar, lista del súper, ingredientes, materiales
+- Diario: pensamientos, sentimientos, reflexiones (solo si no encaja en ninguna otra)
 
-Si es Compras, incluí la subcategoría más apropiada entre: ${subcats}.
+Subcategorías disponibles para Compras: ${subcats}
 
-Formato Compras: {"categoria":"Compras","subcategoria":"Comestibles"}
-Formato resto:   {"categoria":"Salud"}
+REGLAS:
+1. Si el texto menciona UN solo ítem de compra → {"categoria":"Compras","items":[{"texto":"manzanas","subcategoria":"Frutas y Verduras"}]}
+2. Si el texto menciona MÚLTIPLES ítems de compra → lista todos: {"categoria":"Compras","items":[{"texto":"manzanas","subcategoria":"Frutas y Verduras"},{"texto":"tornillos","subcategoria":"Ferretería"}]}
+3. Si la subcategoría sugerida no está en la lista disponible, inventá la más lógica.
+4. Para cualquier otra categoría → {"categoria":"Salud"}
 
 Texto: "${texto.slice(0, 500)}"`
     }]

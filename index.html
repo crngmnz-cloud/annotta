@@ -469,8 +469,8 @@ async function guardar() {
     clearTimeout(tOut);
     if (resp.ok) {
       const data = await resp.json();
-      categoria    = data.categoria    || 'Diario';
-      subcategoria = data.subcategoria || null;
+      categoria    = data.categoria || 'Diario';
+      subcategoria = data.items     || (data.subcategoria ? [{ texto, subcategoria: data.subcategoria }] : null);
     }
   } catch { /* sin conexión o timeout: guarda como Diario */ }
 
@@ -479,7 +479,11 @@ async function guardar() {
 
   if (categoria === 'Compras') {
     entrada.value = '';
-    confirmarCompra(texto, subcategoria);
+    // subcategoria es ahora un array de {texto, subcategoria}
+    const items = Array.isArray(subcategoria) && subcategoria.length
+      ? subcategoria
+      : [{ texto, subcategoria: compras.categorias[0] }];
+    confirmarCompra(items);
     return;
   }
 
@@ -714,28 +718,52 @@ function mostrarInputNuevaCat(wrapper) {
 }
 
 // ── BOTTOM SHEET: confirmación de subcategoría ──
-function confirmarCompra(texto, subcatSugerida) {
-  const catExiste = subcatSugerida && compras.categorias.includes(subcatSugerida);
-  const sugerida  = subcatSugerida || compras.categorias[0];
+// items = [{ texto, subcategoria }]
+function confirmarCompra(items) {
+  // Estado editable de cada ítem (la usuaria puede cambiar la subcategoría)
+  const estado = items.map(it => ({
+    texto: it.texto,
+    subcat: compras.categorias.includes(it.subcategoria)
+      ? it.subcategoria
+      : (it.subcategoria || compras.categorias[0])  // puede ser nueva
+  }));
 
-  mostrarSheet(() => {
+  function renderSheet() {
     sheet.innerHTML = `
-      <h3>¿Lo agrego en <em>${escapeHtml(sugerida)}</em>?</h3>
-      <div class="sheet-btns">
-        <button class="sheet-btn-no">No</button>
-        <button class="sheet-btn-si">Sí</button>
+      <h3 style="margin-bottom:12px;">Agregar a Compras:</h3>
+      <div id="sheet-items"></div>
+      <div class="sheet-btns" style="margin-top:14px;">
+        <button class="sheet-btn-no">Cancelar</button>
+        <button class="sheet-btn-si">Confirmar todo</button>
       </div>
     `;
 
+    const contenedor = sheet.querySelector('#sheet-items');
+    estado.forEach((it, idx) => {
+      const fila = document.createElement('div');
+      fila.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;';
+      fila.innerHTML = `
+        <span style="flex:1;font-size:0.88rem;">${escapeHtml(it.texto)}</span>
+        <select data-idx="${idx}" style="padding:5px 8px;border:1px solid var(--crema-oscura);border-radius:7px;font-family:Georgia,serif;font-size:0.8rem;color:var(--borgona);outline:none;background:white;max-width:140px;">
+          ${compras.categorias.map(c => `<option value="${escapeHtml(c)}" ${c === it.subcat ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
+          ${!compras.categorias.includes(it.subcat) ? `<option value="${escapeHtml(it.subcat)}" selected>${escapeHtml(it.subcat)} ✦</option>` : ''}
+        </select>
+      `;
+      fila.querySelector('select').addEventListener('change', e => {
+        estado[idx].subcat = e.target.value;
+      });
+      contenedor.appendChild(fila);
+    });
+
     sheet.querySelector('.sheet-btn-si').addEventListener('click', () => {
-      agregarItemCompra(texto, sugerida, !catExiste);
+      estado.forEach(it => agregarItemCompra(it.texto, it.subcat, !compras.categorias.includes(it.subcat)));
       cerrarSheet();
     });
 
-    sheet.querySelector('.sheet-btn-no').addEventListener('click', () => {
-      mostrarPickerCat(texto);
-    });
-  });
+    sheet.querySelector('.sheet-btn-no').addEventListener('click', cerrarSheet);
+  }
+
+  mostrarSheet(renderSheet);
 }
 
 function mostrarPickerCat(texto) {
