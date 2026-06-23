@@ -22,11 +22,11 @@ export default async function handler(req, res) {
       content: `Clasificá este texto. Respondé SOLO con JSON, sin explicación ni markdown.
 
 Categorías:
-- Salud: síntomas, medicamentos, turnos médicos, bienestar físico o mental
-- Pendientes: tareas, recordatorios, cosas por hacer
-- Eventos: fechas, citas, reuniones, planes futuros con fecha/hora
-- Compras: ítems para comprar, lista del súper, productos, ingredientes
-- Diario: pensamientos, sentimientos, reflexiones, lo que pasó hoy
+- Salud: CUALQUIER dato corporal o médico — pulsaciones, presión arterial, glucosa, peso, temperatura, oxígeno, frecuencia cardíaca, síntomas (dolor, mareo, cansancio, fiebre, etc.), medicamentos, dosis, tratamientos, turnos médicos, análisis, resultados de laboratorio, bienestar físico o mental. Si hay un número que parece una medición corporal, es Salud.
+- Pendientes: tareas, recordatorios, cosas por hacer, llamadas a hacer, trámites
+- Eventos: fechas concretas, citas, reuniones, cumpleaños, planes futuros con fecha u hora
+- Compras: ítems para comprar, lista del súper, productos, ingredientes, marcas
+- Diario: pensamientos, sentimientos, reflexiones personales, lo que pasó hoy (solo si no encaja en ninguna categoría anterior)
 
 Si es Compras, incluí la subcategoría más apropiada entre: ${subcats}.
 
