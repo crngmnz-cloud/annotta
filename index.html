@@ -458,17 +458,21 @@ async function guardar() {
   let subcategoria = null;
 
   try {
+    const ctrl = new AbortController();
+    const tOut = setTimeout(() => ctrl.abort(), 8000);
     const resp = await fetch('/api/clasificar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ texto, subcategorias: compras.categorias })
+      body: JSON.stringify({ texto, subcategorias: compras.categorias }),
+      signal: ctrl.signal
     });
+    clearTimeout(tOut);
     if (resp.ok) {
       const data = await resp.json();
       categoria    = data.categoria    || 'Diario';
       subcategoria = data.subcategoria || null;
     }
-  } catch { /* sin conexión */ }
+  } catch { /* sin conexión o timeout: guarda como Diario */ }
 
   btnGuardar.disabled = false;
   setEstado('');
@@ -524,7 +528,6 @@ function renderSecciones() {
   });
 
   seccionesEl.appendChild(crearSeccionCompras());
-  renderCalendario();
 }
 
 function crearSeccion(cat, count) {
@@ -606,7 +609,9 @@ function activarEdicion(div, nota) {
 function cargarCompras() {
   try {
     const raw = JSON.parse(localStorage.getItem(COMPRAS_KEY));
-    if (raw && raw.categorias) return raw;
+    if (raw && raw.categorias) {
+      return { categorias: raw.categorias, items: Array.isArray(raw.items) ? raw.items : [] };
+    }
   } catch {}
   return {
     categorias: ['Comestibles', 'Frutas y Verduras', 'Perfumería', 'Limpieza', 'Ferretería', 'Farmacia'],
@@ -1055,9 +1060,10 @@ if ('serviceWorker' in navigator) {
 }
 
 // ── INICIO ──
-revisarNotificacionesPerdidas();
-reactivarTimeouts();
-renderSecciones();
+try { revisarNotificacionesPerdidas(); } catch {}
+try { reactivarTimeouts(); } catch {}
+try { renderSecciones(); } catch(e) { console.error('renderSecciones:', e); }
+try { renderCalendario(); } catch {}
 </script>
 </body>
 </html>
