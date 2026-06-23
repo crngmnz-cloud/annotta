@@ -205,6 +205,73 @@
 
     .nota-eliminar:hover { color: var(--borgona); }
 
+    .nota-editar {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 0 2px;
+      line-height: 1;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .nota:hover .nota-editar,
+    .nota.activa .nota-editar { opacity: 1; }
+    .nota-editar:hover { color: var(--borgona); }
+
+    /* ── MODO EDICIÓN ── */
+    .nota.editando {
+      flex-direction: column;
+      gap: 8px;
+      background: #fffaf9;
+    }
+
+    .nota-edit-area {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1.5px solid var(--borgona);
+      border-radius: 8px;
+      font-family: 'Georgia', serif;
+      font-size: 0.88rem;
+      color: var(--texto);
+      line-height: 1.5;
+      resize: none;
+      outline: none;
+      background: white;
+      min-height: 60px;
+    }
+
+    .nota-edit-acciones {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-confirmar {
+      flex: 1;
+      padding: 7px;
+      background: var(--borgona);
+      color: var(--crema);
+      border: none;
+      border-radius: 7px;
+      font-family: 'Georgia', serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+
+    .btn-cancelar {
+      padding: 7px 14px;
+      background: var(--crema-oscura);
+      color: var(--muted);
+      border: none;
+      border-radius: 7px;
+      font-family: 'Georgia', serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+
     .seccion-vacia {
       padding: 12px 14px;
       font-size: 0.82rem;
@@ -348,14 +415,7 @@
         cuerpo.innerHTML = `<p class="seccion-vacia">Nada por aquí todavía.</p>`;
       } else {
         items.forEach(nota => {
-          const div = document.createElement('div');
-          div.className = 'nota';
-          div.innerHTML = `
-            <span class="nota-texto">${escapeHtml(nota.texto)}</span>
-            <span class="nota-fecha">${nota.fecha}</span>
-            <button class="nota-eliminar" aria-label="Eliminar" data-id="${nota.id}">×</button>
-          `;
-          cuerpo.appendChild(div);
+          cuerpo.appendChild(crearNotaEl(nota));
         });
       }
 
@@ -363,15 +423,68 @@
       sec.appendChild(cuerpo);
       seccionesEl.appendChild(sec);
     });
+  }
 
-    // Delegación de eventos para eliminar
-    seccionesEl.querySelectorAll('.nota-eliminar').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = parseInt(btn.dataset.id);
-        notas = notas.filter(n => n.id !== id);
+  function crearNotaEl(nota) {
+    const div = document.createElement('div');
+    div.className = 'nota';
+    div.dataset.id = nota.id;
+
+    // Vista normal
+    div.innerHTML = `
+      <span class="nota-texto">${escapeHtml(nota.texto)}</span>
+      <span class="nota-fecha">${nota.fecha}</span>
+      <button class="nota-editar" aria-label="Editar" data-id="${nota.id}">✎</button>
+      <button class="nota-eliminar" aria-label="Eliminar" data-id="${nota.id}">×</button>
+    `;
+
+    // Toque en móvil: mostrar botón editar
+    div.addEventListener('click', e => {
+      if (e.target.closest('button')) return;
+      div.classList.toggle('activa');
+    });
+
+    div.querySelector('.nota-editar').addEventListener('click', () => activarEdicion(div, nota));
+
+    div.querySelector('.nota-eliminar').addEventListener('click', () => {
+      notas = notas.filter(n => n.id !== nota.id);
+      guardarNotas();
+      renderSecciones();
+    });
+
+    return div;
+  }
+
+  function activarEdicion(div, nota) {
+    div.classList.add('editando');
+    div.innerHTML = `
+      <textarea class="nota-edit-area">${escapeHtml(nota.texto)}</textarea>
+      <div class="nota-edit-acciones">
+        <button class="btn-cancelar">Cancelar</button>
+        <button class="btn-confirmar">Guardar</button>
+      </div>
+      <span class="nota-fecha">${nota.fecha}</span>
+    `;
+
+    const area = div.querySelector('.nota-edit-area');
+    // Llevar cursor al final
+    area.focus();
+    area.setSelectionRange(area.value.length, area.value.length);
+
+    div.querySelector('.btn-cancelar').addEventListener('click', () => {
+      const fresco = crearNotaEl(nota);
+      div.replaceWith(fresco);
+    });
+
+    div.querySelector('.btn-confirmar').addEventListener('click', () => {
+      const nuevoTexto = area.value.trim();
+      if (!nuevoTexto) return;
+      const idx = notas.findIndex(n => n.id === nota.id);
+      if (idx !== -1) {
+        notas[idx].texto = nuevoTexto;
         guardarNotas();
         renderSecciones();
-      });
+      }
     });
   }
 

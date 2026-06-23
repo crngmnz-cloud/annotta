@@ -1,4 +1,4 @@
-const CACHE_NAME = 'annotta-v1';
+const CACHE_NAME = 'annotta-v2';
 const ASSETS = [
   '/',
   '/index.html',
