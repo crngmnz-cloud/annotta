@@ -30,7 +30,6 @@
       overscroll-behavior: none;
     }
 
-    /* ── LAYOUT PRINCIPAL ── */
     .app {
       display: flex;
       flex-direction: column;
@@ -43,300 +42,355 @@
     header {
       background: var(--borgona);
       color: var(--crema);
-      padding: 16px 20px 12px;
+      padding: 14px 16px 10px;
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    header h1 {
-      font-size: 1.4rem;
-      letter-spacing: 0.15em;
-      font-weight: normal;
+    header h1 { font-size: 1.3rem; letter-spacing: 0.15em; font-weight: normal; }
+    header p  { font-size: 0.7rem; opacity: 0.65; letter-spacing: 0.05em; margin-top: 1px; }
+
+    .header-left { display: flex; flex-direction: column; }
+
+    #btn-cal {
+      background: none; border: none; color: var(--crema);
+      font-size: 1.3rem; cursor: pointer; padding: 4px 6px;
+      opacity: 0.8; transition: opacity 0.2s;
+    }
+    #btn-cal:hover { opacity: 1; }
+
+    /* ── CALENDARIO ── */
+    #calendario {
+      background: white;
+      border-bottom: 1px solid var(--crema-oscura);
+      flex-shrink: 0;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.3s ease;
+    }
+    #calendario.abierto { max-height: 280px; }
+
+    .cal-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px 6px;
     }
 
-    header p {
-      font-size: 0.72rem;
-      opacity: 0.7;
-      letter-spacing: 0.05em;
-      margin-top: 2px;
+    .cal-mes {
+      font-size: 0.88rem; color: var(--borgona);
+      font-weight: bold; letter-spacing: 0.08em; text-transform: capitalize;
     }
 
-    /* ── CAJITA DE ENTRADA ── */
+    .cal-btn {
+      background: none; border: none; color: var(--borgona);
+      font-size: 1.1rem; cursor: pointer; padding: 2px 8px;
+    }
+
+    .cal-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      padding: 0 10px 12px; gap: 2px;
+    }
+
+    .cal-dia-nombre {
+      text-align: center; font-size: 0.65rem;
+      color: var(--muted); padding: 4px 0; text-transform: uppercase;
+    }
+
+    .cal-dia {
+      text-align: center; font-size: 0.78rem;
+      padding: 5px 2px; border-radius: 50%;
+      cursor: default; color: var(--texto);
+      position: relative;
+    }
+
+    .cal-dia.hoy {
+      background: var(--borgona); color: var(--crema);
+      border-radius: 50%; font-weight: bold;
+    }
+
+    .cal-dia.tiene-evento::after {
+      content: ''; display: block;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--borgona-claro);
+      margin: 1px auto 0;
+    }
+
+    .cal-dia.hoy.tiene-evento::after { background: var(--crema); }
+    .cal-dia.vacio { color: transparent; }
+
+    /* ── ENTRADA ── */
     .entrada-wrap {
-      padding: 16px;
+      padding: 12px 16px 0;
       background: var(--crema);
       flex-shrink: 0;
     }
 
     #entrada {
-      width: 100%;
-      min-height: 110px;
-      padding: 14px;
+      width: 100%; min-height: 90px;
+      padding: 12px 14px;
       background: white;
       border: 1.5px solid var(--crema-oscura);
       border-radius: 12px;
-      font-family: 'Georgia', serif;
-      font-size: 1rem;
-      color: var(--texto);
-      resize: none;
-      outline: none;
-      line-height: 1.6;
+      font-family: 'Georgia', serif; font-size: 1rem;
+      color: var(--texto); resize: none; outline: none; line-height: 1.6;
       transition: border-color 0.2s;
     }
+    #entrada:focus { border-color: var(--borgona); }
+    #entrada::placeholder { color: var(--muted); font-style: italic; }
 
-    #entrada:focus {
-      border-color: var(--borgona);
-    }
-
-    #entrada::placeholder {
-      color: var(--muted);
-      font-style: italic;
-    }
-
-    .botones {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
+    .botones { display: flex; gap: 10px; margin-top: 8px; }
 
     #btn-guardar {
-      flex: 1;
-      padding: 12px;
-      background: var(--borgona);
-      color: var(--crema);
-      border: none;
-      border-radius: 10px;
-      font-family: 'Georgia', serif;
-      font-size: 0.95rem;
-      letter-spacing: 0.05em;
-      cursor: pointer;
-      transition: background 0.2s;
+      flex: 1; padding: 11px;
+      background: var(--borgona); color: var(--crema);
+      border: none; border-radius: 10px;
+      font-family: 'Georgia', serif; font-size: 0.95rem;
+      letter-spacing: 0.05em; cursor: pointer; transition: background 0.2s;
     }
-
     #btn-guardar:active { background: var(--borgona-claro); }
     #btn-guardar:disabled { opacity: 0.6; }
 
-    /* ── ESTADO / FEEDBACK ── */
+    /* ── ESTADO / BANNERS ── */
     #estado {
-      min-height: 22px;
-      font-size: 0.78rem;
-      color: var(--muted);
-      padding: 0 16px 8px;
-      font-style: italic;
-      flex-shrink: 0;
+      min-height: 20px; font-size: 0.78rem; color: var(--muted);
+      padding: 6px 16px 4px; font-style: italic; flex-shrink: 0;
+    }
+
+    #banners { flex-shrink: 0; padding: 0 16px; }
+
+    .banner {
+      background: var(--borgona); color: var(--crema);
+      border-radius: 10px; padding: 9px 12px;
+      font-size: 0.8rem; line-height: 1.5;
+      display: flex; gap: 8px; align-items: flex-start;
+      margin-bottom: 6px;
+    }
+    .banner span { flex: 1; }
+    .banner-cerrar {
+      background: none; border: none; color: var(--crema);
+      font-size: 1.1rem; cursor: pointer; opacity: 0.7;
     }
 
     /* ── SECCIONES ── */
     .secciones {
-      flex: 1;
-      overflow-y: auto;
-      padding: 4px 16px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+      flex: 1; overflow-y: auto;
+      padding: 6px 16px 24px;
+      display: flex; flex-direction: column; gap: 12px;
     }
 
     .seccion {
-      background: white;
-      border-radius: 12px;
-      border-left: 4px solid var(--borgona);
-      overflow: hidden;
+      background: white; border-radius: 12px;
+      border-left: 4px solid var(--borgona); overflow: hidden;
     }
 
     .seccion-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 14px;
-      background: var(--crema-oscura);
-      cursor: pointer;
-      user-select: none;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 14px; background: var(--crema-oscura);
+      cursor: pointer; user-select: none;
     }
 
     .seccion-header h2 {
-      font-size: 0.82rem;
-      letter-spacing: 0.12em;
-      font-weight: bold;
-      color: var(--borgona);
-      text-transform: uppercase;
+      font-size: 0.8rem; letter-spacing: 0.12em;
+      font-weight: bold; color: var(--borgona); text-transform: uppercase;
     }
 
-    .seccion-count {
-      font-size: 0.72rem;
-      color: var(--muted);
-    }
+    .seccion-count { font-size: 0.72rem; color: var(--muted); }
 
-    .seccion-cuerpo {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
+    .seccion-cuerpo { display: flex; flex-direction: column; }
 
+    /* ── NOTA ── */
     .nota {
-      padding: 11px 14px;
-      font-size: 0.88rem;
-      line-height: 1.5;
+      padding: 10px 14px; font-size: 0.88rem; line-height: 1.5;
       border-bottom: 1px solid var(--crema-oscura);
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
+      display: flex; gap: 8px; align-items: flex-start;
     }
-
     .nota:last-child { border-bottom: none; }
 
     .nota-texto { flex: 1; }
 
+    .nota-meta {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+      flex-shrink: 0;
+    }
+
     .nota-fecha {
-      font-size: 0.68rem;
-      color: var(--muted);
-      white-space: nowrap;
-      padding-top: 2px;
+      font-size: 0.67rem; color: var(--muted); white-space: nowrap;
     }
 
-    .nota-eliminar {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 1rem;
-      cursor: pointer;
-      padding: 0 2px;
-      line-height: 1;
-      flex-shrink: 0;
+    .nota-acciones { display: flex; gap: 4px; }
+
+    .nota-btn {
+      background: none; border: none; color: var(--muted);
+      font-size: 0.9rem; cursor: pointer; padding: 1px 3px; line-height: 1;
     }
-
-    .nota-eliminar:hover { color: var(--borgona); }
-
-    .nota-editar {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 0.85rem;
-      cursor: pointer;
-      padding: 0 2px;
-      line-height: 1;
-      flex-shrink: 0;
-      opacity: 0;
-      transition: opacity 0.15s;
-    }
-
-    .nota:hover .nota-editar,
-    .nota.activa .nota-editar { opacity: 1; }
-    .nota-editar:hover { color: var(--borgona); }
+    .nota-btn:hover { color: var(--borgona); }
 
     /* ── MODO EDICIÓN ── */
-    .nota.editando {
-      flex-direction: column;
-      gap: 8px;
-      background: #fffaf9;
-    }
+    .nota.editando { flex-direction: column; gap: 8px; background: #fffaf9; }
 
     .nota-edit-area {
-      width: 100%;
-      padding: 8px 10px;
-      border: 1.5px solid var(--borgona);
-      border-radius: 8px;
-      font-family: 'Georgia', serif;
-      font-size: 0.88rem;
-      color: var(--texto);
-      line-height: 1.5;
-      resize: none;
-      outline: none;
-      background: white;
-      min-height: 60px;
+      width: 100%; padding: 8px 10px;
+      border: 1.5px solid var(--borgona); border-radius: 8px;
+      font-family: 'Georgia', serif; font-size: 0.88rem;
+      color: var(--texto); line-height: 1.5; resize: none; outline: none;
+      background: white; min-height: 56px;
     }
 
-    .nota-edit-acciones {
-      display: flex;
-      gap: 8px;
-    }
+    .nota-edit-acciones { display: flex; gap: 8px; }
 
     .btn-confirmar {
-      flex: 1;
-      padding: 7px;
-      background: var(--borgona);
-      color: var(--crema);
-      border: none;
-      border-radius: 7px;
-      font-family: 'Georgia', serif;
-      font-size: 0.82rem;
-      cursor: pointer;
+      flex: 1; padding: 7px;
+      background: var(--borgona); color: var(--crema);
+      border: none; border-radius: 7px;
+      font-family: 'Georgia', serif; font-size: 0.82rem; cursor: pointer;
     }
-
     .btn-cancelar {
       padding: 7px 14px;
-      background: var(--crema-oscura);
-      color: var(--muted);
-      border: none;
-      border-radius: 7px;
-      font-family: 'Georgia', serif;
-      font-size: 0.82rem;
-      cursor: pointer;
+      background: var(--crema-oscura); color: var(--muted);
+      border: none; border-radius: 7px;
+      font-family: 'Georgia', serif; font-size: 0.82rem; cursor: pointer;
     }
 
     .seccion-vacia {
-      padding: 12px 14px;
-      font-size: 0.82rem;
-      color: var(--muted);
-      font-style: italic;
+      padding: 11px 14px; font-size: 0.82rem;
+      color: var(--muted); font-style: italic;
     }
+
+    /* ── COMPRAS ── */
+    .compras-subheader {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 7px 14px; background: #fdf4f7;
+      border-bottom: 1px solid var(--crema-oscura);
+    }
+
+    .compras-subheader h3 {
+      font-size: 0.75rem; letter-spacing: 0.08em;
+      color: var(--borgona-claro); text-transform: uppercase;
+    }
+
+    .compras-item {
+      padding: 9px 14px; font-size: 0.86rem; line-height: 1.4;
+      border-bottom: 1px solid var(--crema-oscura);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .compras-item:last-child { border-bottom: none; }
+
+    .compras-check {
+      width: 18px; height: 18px; flex-shrink: 0;
+      border: 1.5px solid var(--crema-oscura); border-radius: 4px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; color: var(--borgona); transition: all 0.15s;
+    }
+    .compras-check.marcado {
+      background: var(--borgona); border-color: var(--borgona); color: var(--crema);
+    }
+
+    .compras-texto { flex: 1; }
+    .compras-texto.tachado { text-decoration: line-through; color: var(--muted); }
+
+    .btn-add-cat {
+      background: none; border: none; color: var(--muted);
+      font-size: 0.78rem; cursor: pointer; padding: 0;
+    }
+    .btn-add-cat:hover { color: var(--borgona); }
+
+    .compras-nueva-cat {
+      padding: 8px 14px; border-bottom: 1px solid var(--crema-oscura);
+      display: flex; gap: 8px;
+    }
+
+    .compras-nueva-cat input {
+      flex: 1; padding: 5px 8px;
+      border: 1px solid var(--crema-oscura); border-radius: 6px;
+      font-family: 'Georgia', serif; font-size: 0.82rem; outline: none;
+    }
+    .compras-nueva-cat input:focus { border-color: var(--borgona); }
+
+    .btn-mini {
+      padding: 5px 10px; background: var(--borgona);
+      color: var(--crema); border: none; border-radius: 6px;
+      font-size: 0.75rem; cursor: pointer;
+    }
+
+    /* ── BOTTOM SHEET ── */
+    #overlay {
+      position: fixed; inset: 0; background: rgba(58,16,32,0.35);
+      z-index: 100; display: none; align-items: flex-end;
+    }
+    #overlay.visible { display: flex; }
+
+    .sheet {
+      background: white; width: 100%; max-width: 480px;
+      margin: 0 auto; border-radius: 18px 18px 0 0;
+      padding: 20px 20px 32px; max-height: 70vh; overflow-y: auto;
+    }
+
+    .sheet h3 {
+      font-size: 0.9rem; color: var(--borgona);
+      margin-bottom: 14px; line-height: 1.4;
+    }
+
+    .sheet-btns { display: flex; gap: 10px; margin-top: 4px; }
+
+    .sheet-btn-si {
+      flex: 1; padding: 11px;
+      background: var(--borgona); color: var(--crema);
+      border: none; border-radius: 9px;
+      font-family: 'Georgia', serif; font-size: 0.9rem; cursor: pointer;
+    }
+    .sheet-btn-no {
+      flex: 1; padding: 11px;
+      background: var(--crema-oscura); color: var(--texto);
+      border: none; border-radius: 9px;
+      font-family: 'Georgia', serif; font-size: 0.9rem; cursor: pointer;
+    }
+
+    .cat-lista { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+
+    .cat-opcion {
+      padding: 10px 14px; background: var(--crema);
+      border-radius: 8px; border: 1px solid var(--crema-oscura);
+      font-size: 0.88rem; cursor: pointer; text-align: left;
+      font-family: 'Georgia', serif;
+    }
+    .cat-opcion:hover { border-color: var(--borgona); color: var(--borgona); }
 
     /* ── SPINNER ── */
     .spinner {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
+      display: inline-block; width: 11px; height: 11px;
       border: 2px solid var(--crema-oscura);
-      border-top-color: var(--borgona);
-      border-radius: 50%;
+      border-top-color: var(--borgona); border-radius: 50%;
       animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 4px;
+      vertical-align: middle; margin-right: 4px;
     }
-
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── BANNER DE NOTIFICACIÓN PERDIDA ── */
-    .banner-perdida {
-      margin: 0 16px 6px;
-      background: var(--borgona);
-      color: var(--crema);
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 0.82rem;
-      line-height: 1.5;
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      flex-shrink: 0;
-    }
-
-    .banner-perdida span { flex: 1; }
-
-    .banner-cerrar {
-      background: none;
-      border: none;
-      color: var(--crema);
-      font-size: 1.1rem;
-      cursor: pointer;
-      opacity: 0.7;
-      flex-shrink: 0;
-      line-height: 1;
-    }
   </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <h1>ANNOTTA</h1>
-    <p>tu cerebro externo</p>
+    <div class="header-left">
+      <h1>ANNOTTA</h1>
+      <p>tu cerebro externo</p>
+    </div>
+    <button id="btn-cal" title="Calendario">📅</button>
   </header>
+
+  <div id="calendario">
+    <div class="cal-nav">
+      <button class="cal-btn" id="cal-prev">‹</button>
+      <span class="cal-mes" id="cal-titulo"></span>
+      <button class="cal-btn" id="cal-next">›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
 
   <div class="entrada-wrap">
     <textarea
       id="entrada"
       placeholder="Escribe cualquier cosa… la IA lo clasifica sola."
-      autocomplete="off"
-      autocorrect="on"
-      spellcheck="true"
+      autocomplete="off" autocorrect="on" spellcheck="true"
     ></textarea>
     <div class="botones">
       <button id="btn-guardar">Guardar</button>
@@ -349,364 +403,661 @@
   <div class="secciones" id="secciones"></div>
 </div>
 
+<!-- Bottom sheet para confirmación de Compras -->
+<div id="overlay">
+  <div class="sheet" id="sheet"></div>
+</div>
+
 <script>
-  // ── CONSTANTES ──
-  const CATEGORIAS = ['Salud', 'Pendientes', 'Eventos', 'Diario'];
-  const STORAGE_KEY = 'annotta_notas';
+// ══════════════════════════════════════════
+// CONSTANTES Y ESTADO
+// ══════════════════════════════════════════
 
-  // ── ESTADO ──
-  let notas = cargarNotas();
+const CATEGORIAS_NOTAS = ['Salud', 'Pendientes', 'Eventos', 'Diario'];
+const STORAGE_KEY   = 'annotta_notas';
+const COMPRAS_KEY   = 'annotta_compras';
+const NOTIF_KEY     = 'annotta_notificaciones';
 
-  // ── ELEMENTOS ──
-  const entrada   = document.getElementById('entrada');
-  const btnGuardar = document.getElementById('btn-guardar');
-  const estadoEl  = document.getElementById('estado');
-  const seccionesEl = document.getElementById('secciones');
+const ICONOS = { Salud: '♡', Pendientes: '○', Eventos: '◇', Diario: '✦', Compras: '✿' };
 
-  // ── FOCUS AUTOMÁTICO AL ABRIR ──
-  // Timeout corto para que el browser móvil ya haya pintado el layout
-  setTimeout(() => entrada.focus(), 300);
+let notas   = cargarNotas();
+let compras = cargarCompras();
 
-  // ── GUARDAR CON ENTER (Shift+Enter = salto de línea) ──
-  entrada.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      guardar();
+// ── DOM ──
+const entrada    = document.getElementById('entrada');
+const btnGuardar = document.getElementById('btn-guardar');
+const estadoEl   = document.getElementById('estado');
+const seccionesEl = document.getElementById('secciones');
+const bannersEl  = document.getElementById('banners');
+const overlay    = document.getElementById('overlay');
+const sheet      = document.getElementById('sheet');
+const calendario = document.getElementById('calendario');
+const btnCal     = document.getElementById('btn-cal');
+
+// ── FOCUS ──
+setTimeout(() => entrada.focus(), 300);
+
+// ── ENTER guarda, Shift+Enter = salto ──
+entrada.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); guardar(); }
+});
+btnGuardar.addEventListener('click', guardar);
+
+// ══════════════════════════════════════════
+// GUARDAR
+// ══════════════════════════════════════════
+
+async function guardar() {
+  const texto = entrada.value.trim();
+  if (!texto) return;
+
+  setEstado('<span class="spinner"></span> Clasificando…');
+  btnGuardar.disabled = true;
+
+  let categoria = 'Diario';
+  let subcategoria = null;
+
+  try {
+    const resp = await fetch('/api/clasificar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texto, subcategorias: compras.categorias })
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      categoria    = data.categoria    || 'Diario';
+      subcategoria = data.subcategoria || null;
+    }
+  } catch { /* sin conexión */ }
+
+  btnGuardar.disabled = false;
+  setEstado('');
+
+  if (categoria === 'Compras') {
+    entrada.value = '';
+    confirmarCompra(texto, subcategoria);
+    return;
+  }
+
+  const ahora = new Date();
+  const nota = {
+    id: Date.now(),
+    texto,
+    categoria,
+    fecha: formatearFechaHora(ahora),
+    fechaISO: ahora.toISOString()
+  };
+
+  notas.push(nota);
+  guardarNotas();
+  renderSecciones();
+  entrada.value = '';
+  setEstado(`Guardado en <strong>${categoria}</strong>`);
+  setTimeout(() => setEstado(''), 2500);
+  entrada.focus();
+
+  if (categoria === 'Eventos') procesarEventoNuevo(nota.id, texto, nota.fecha);
+}
+
+// ══════════════════════════════════════════
+// RENDER NOTAS
+// ══════════════════════════════════════════
+
+function renderSecciones() {
+  seccionesEl.innerHTML = '';
+
+  CATEGORIAS_NOTAS.forEach(cat => {
+    const items = notas.filter(n => n.categoria === cat).reverse();
+    const sec = crearSeccion(cat, items.length);
+
+    const cuerpo = document.createElement('div');
+    cuerpo.className = 'seccion-cuerpo';
+
+    if (!items.length) {
+      cuerpo.innerHTML = `<p class="seccion-vacia">Nada por aquí todavía.</p>`;
+    } else {
+      items.forEach(nota => cuerpo.appendChild(crearNotaEl(nota)));
+    }
+
+    sec.appendChild(cuerpo);
+    seccionesEl.appendChild(sec);
+  });
+
+  seccionesEl.appendChild(crearSeccionCompras());
+  renderCalendario();
+}
+
+function crearSeccion(cat, count) {
+  const sec = document.createElement('div');
+  sec.className = 'seccion';
+  const header = document.createElement('div');
+  header.className = 'seccion-header';
+  header.innerHTML = `<h2>${ICONOS[cat] || '·'} ${cat}</h2><span class="seccion-count">${count}</span>`;
+  sec.appendChild(header);
+  return sec;
+}
+
+function crearNotaEl(nota) {
+  const div = document.createElement('div');
+  div.className = 'nota';
+  div.dataset.id = nota.id;
+
+  // Solo Salud muestra la hora
+  const fechaDisplay = nota.categoria === 'Salud'
+    ? nota.fecha
+    : (nota.fecha || '').split(' — ')[0];
+
+  div.innerHTML = `
+    <span class="nota-texto">${escapeHtml(nota.texto)}</span>
+    <div class="nota-meta">
+      <span class="nota-fecha">${fechaDisplay}</span>
+      <div class="nota-acciones">
+        <button class="nota-btn" title="Editar">✎</button>
+        <button class="nota-btn" title="Eliminar">×</button>
+      </div>
+    </div>
+  `;
+
+  div.querySelectorAll('.nota-btn')[0].addEventListener('click', () => activarEdicion(div, nota));
+  div.querySelectorAll('.nota-btn')[1].addEventListener('click', () => {
+    notas = notas.filter(n => n.id !== nota.id);
+    guardarNotas();
+    renderSecciones();
+  });
+
+  return div;
+}
+
+function activarEdicion(div, nota) {
+  const fechaDisplay = nota.categoria === 'Salud'
+    ? nota.fecha
+    : (nota.fecha || '').split(' — ')[0];
+
+  div.className = 'nota editando';
+  div.innerHTML = `
+    <textarea class="nota-edit-area">${escapeHtml(nota.texto)}</textarea>
+    <div class="nota-edit-acciones">
+      <button class="btn-cancelar">Cancelar</button>
+      <button class="btn-confirmar">Guardar</button>
+    </div>
+    <span class="nota-fecha">${fechaDisplay}</span>
+  `;
+
+  const area = div.querySelector('.nota-edit-area');
+  area.focus();
+  area.setSelectionRange(area.value.length, area.value.length);
+
+  div.querySelector('.btn-cancelar').addEventListener('click', () => {
+    div.replaceWith(crearNotaEl(nota));
+  });
+
+  div.querySelector('.btn-confirmar').addEventListener('click', () => {
+    const nuevo = area.value.trim();
+    if (!nuevo) return;
+    const idx = notas.findIndex(n => n.id === nota.id);
+    if (idx !== -1) { notas[idx].texto = nuevo; guardarNotas(); renderSecciones(); }
+  });
+}
+
+// ══════════════════════════════════════════
+// COMPRAS
+// ══════════════════════════════════════════
+
+function cargarCompras() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(COMPRAS_KEY));
+    if (raw && raw.categorias) return raw;
+  } catch {}
+  return {
+    categorias: ['Comestibles', 'Frutas y Verduras', 'Perfumería', 'Limpieza', 'Ferretería', 'Farmacia'],
+    items: []
+  };
+}
+
+function guardarCompras() {
+  localStorage.setItem(COMPRAS_KEY, JSON.stringify(compras));
+}
+
+function crearSeccionCompras() {
+  const total = compras.items.filter(i => !i.comprado).length;
+  const sec = crearSeccion('Compras', total);
+
+  const cuerpo = document.createElement('div');
+  cuerpo.className = 'seccion-cuerpo';
+
+  if (!compras.categorias.length && !compras.items.length) {
+    cuerpo.innerHTML = `<p class="seccion-vacia">Nada por aquí todavía.</p>`;
+  } else {
+    compras.categorias.forEach(cat => {
+      const items = compras.items.filter(i => i.categoria === cat);
+      const sub = document.createElement('div');
+      sub.innerHTML = `
+        <div class="compras-subheader">
+          <h3>${cat}</h3>
+        </div>
+      `;
+      if (!items.length) {
+        sub.innerHTML += `<p class="seccion-vacia" style="padding:8px 14px;font-size:0.78rem;">Vacío</p>`;
+      } else {
+        items.forEach(item => sub.appendChild(crearItemCompra(item)));
+      }
+      cuerpo.appendChild(sub);
+    });
+  }
+
+  // Botón agregar categoría
+  const addCatWrap = document.createElement('div');
+  addCatWrap.style.cssText = 'padding:8px 14px;';
+  addCatWrap.innerHTML = `<button class="btn-add-cat">+ Agregar categoría</button>`;
+  addCatWrap.querySelector('button').addEventListener('click', () => mostrarInputNuevaCat(addCatWrap));
+  cuerpo.appendChild(addCatWrap);
+
+  sec.appendChild(cuerpo);
+  return sec;
+}
+
+function crearItemCompra(item) {
+  const div = document.createElement('div');
+  div.className = 'compras-item';
+  div.innerHTML = `
+    <div class="compras-check${item.comprado ? ' marcado' : ''}">
+      ${item.comprado ? '✓' : ''}
+    </div>
+    <span class="compras-texto${item.comprado ? ' tachado' : ''}">${escapeHtml(item.texto)}</span>
+    <button class="nota-btn" title="Eliminar">×</button>
+  `;
+
+  div.querySelector('.compras-check').addEventListener('click', () => {
+    const idx = compras.items.findIndex(i => i.id === item.id);
+    if (idx !== -1) {
+      compras.items[idx].comprado = !compras.items[idx].comprado;
+      guardarCompras();
+      renderSecciones();
     }
   });
 
-  btnGuardar.addEventListener('click', guardar);
-
-  // ── GUARDAR ──
-  async function guardar() {
-    const texto = entrada.value.trim();
-    if (!texto) return;
-
-    setEstado('<span class="spinner"></span> Clasificando…');
-    btnGuardar.disabled = true;
-
-    let categoria = 'Diario';
-    try {
-      const resp = await fetch('/api/clasificar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ texto })
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        categoria = data.categoria || 'Diario';
-      }
-    } catch {
-      // Sin conexión: guardamos como Diario
-    }
-
-    const nota = {
-      id: Date.now(),
-      texto,
-      categoria,
-      fecha: (() => {
-        const d = new Date();
-        const fecha = d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        const hora = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
-        return `${fecha} — ${hora} hs`;
-      })()
-    };
-
-    notas.push(nota);
-    guardarNotas();
+  div.querySelector('.nota-btn').addEventListener('click', () => {
+    compras.items = compras.items.filter(i => i.id !== item.id);
+    guardarCompras();
     renderSecciones();
-    entrada.value = '';
-    setEstado(`Guardado en <strong>${categoria}</strong>`);
+  });
 
-    // Si es un Evento, programar notificaciones en segundo plano
-    if (categoria === 'Eventos') {
-      procesarEventoNuevo(nota.id, texto);
-    }
-    setTimeout(() => setEstado(''), 2500);
-    btnGuardar.disabled = false;
-    entrada.focus();
-  }
+  return div;
+}
 
-  // ── RENDER SECCIONES ──
-  function renderSecciones() {
-    seccionesEl.innerHTML = '';
-    CATEGORIAS.forEach(cat => {
-      const items = notas.filter(n => n.categoria === cat).reverse();
-      const sec = document.createElement('div');
-      sec.className = 'seccion';
+function mostrarInputNuevaCat(wrapper) {
+  const div = document.createElement('div');
+  div.className = 'compras-nueva-cat';
+  div.innerHTML = `<input type="text" placeholder="Nombre de la categoría" maxlength="40" /><button class="btn-mini">OK</button>`;
+  wrapper.replaceWith(div);
 
-      const header = document.createElement('div');
-      header.className = 'seccion-header';
-      header.innerHTML = `
-        <h2>${icono(cat)} ${cat}</h2>
-        <span class="seccion-count">${items.length}</span>
-      `;
+  const input = div.querySelector('input');
+  input.focus();
 
-      const cuerpo = document.createElement('div');
-      cuerpo.className = 'seccion-cuerpo';
-
-      if (items.length === 0) {
-        cuerpo.innerHTML = `<p class="seccion-vacia">Nada por aquí todavía.</p>`;
-      } else {
-        items.forEach(nota => {
-          cuerpo.appendChild(crearNotaEl(nota));
-        });
-      }
-
-      sec.appendChild(header);
-      sec.appendChild(cuerpo);
-      seccionesEl.appendChild(sec);
-    });
-  }
-
-  function crearNotaEl(nota) {
-    const div = document.createElement('div');
-    div.className = 'nota';
-    div.dataset.id = nota.id;
-
-    // Vista normal
-    div.innerHTML = `
-      <span class="nota-texto">${escapeHtml(nota.texto)}</span>
-      <span class="nota-fecha">${nota.fecha}</span>
-      <button class="nota-editar" aria-label="Editar" data-id="${nota.id}">✎</button>
-      <button class="nota-eliminar" aria-label="Eliminar" data-id="${nota.id}">×</button>
-    `;
-
-    // Toque en móvil: mostrar botón editar
-    div.addEventListener('click', e => {
-      if (e.target.closest('button')) return;
-      div.classList.toggle('activa');
-    });
-
-    div.querySelector('.nota-editar').addEventListener('click', () => activarEdicion(div, nota));
-
-    div.querySelector('.nota-eliminar').addEventListener('click', () => {
-      notas = notas.filter(n => n.id !== nota.id);
-      guardarNotas();
+  div.querySelector('button').addEventListener('click', () => {
+    const nombre = input.value.trim();
+    if (nombre && !compras.categorias.includes(nombre)) {
+      compras.categorias.push(nombre);
+      guardarCompras();
       renderSecciones();
-    });
+    }
+  });
 
-    return div;
-  }
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') div.querySelector('button').click();
+  });
+}
 
-  function activarEdicion(div, nota) {
-    div.classList.add('editando');
-    div.innerHTML = `
-      <textarea class="nota-edit-area">${escapeHtml(nota.texto)}</textarea>
-      <div class="nota-edit-acciones">
-        <button class="btn-cancelar">Cancelar</button>
-        <button class="btn-confirmar">Guardar</button>
+// ── BOTTOM SHEET: confirmación de subcategoría ──
+function confirmarCompra(texto, subcatSugerida) {
+  const catExiste = subcatSugerida && compras.categorias.includes(subcatSugerida);
+  const sugerida  = subcatSugerida || compras.categorias[0];
+
+  mostrarSheet(() => {
+    sheet.innerHTML = `
+      <h3>¿Lo agrego en <em>${escapeHtml(sugerida)}</em>?</h3>
+      <div class="sheet-btns">
+        <button class="sheet-btn-no">No</button>
+        <button class="sheet-btn-si">Sí</button>
       </div>
-      <span class="nota-fecha">${nota.fecha}</span>
     `;
 
-    const area = div.querySelector('.nota-edit-area');
-    // Llevar cursor al final
-    area.focus();
-    area.setSelectionRange(area.value.length, area.value.length);
-
-    div.querySelector('.btn-cancelar').addEventListener('click', () => {
-      const fresco = crearNotaEl(nota);
-      div.replaceWith(fresco);
+    sheet.querySelector('.sheet-btn-si').addEventListener('click', () => {
+      agregarItemCompra(texto, sugerida, !catExiste);
+      cerrarSheet();
     });
 
-    div.querySelector('.btn-confirmar').addEventListener('click', () => {
-      const nuevoTexto = area.value.trim();
-      if (!nuevoTexto) return;
-      const idx = notas.findIndex(n => n.id === nota.id);
-      if (idx !== -1) {
-        notas[idx].texto = nuevoTexto;
-        guardarNotas();
-        renderSecciones();
+    sheet.querySelector('.sheet-btn-no').addEventListener('click', () => {
+      mostrarPickerCat(texto);
+    });
+  });
+}
+
+function mostrarPickerCat(texto) {
+  sheet.innerHTML = `<h3>Elegí una categoría:</h3><div class="cat-lista"></div>`;
+  const lista = sheet.querySelector('.cat-lista');
+
+  compras.categorias.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-opcion';
+    btn.textContent = cat;
+    btn.addEventListener('click', () => {
+      agregarItemCompra(texto, cat, false);
+      cerrarSheet();
+    });
+    lista.appendChild(btn);
+  });
+
+  // Nueva categoría
+  const btn = document.createElement('button');
+  btn.className = 'cat-opcion';
+  btn.style.color = 'var(--borgona)';
+  btn.textContent = '+ Nueva categoría';
+  btn.addEventListener('click', () => {
+    sheet.innerHTML = `
+      <h3>Nueva categoría:</h3>
+      <div class="compras-nueva-cat" style="padding:0;border:none;">
+        <input type="text" placeholder="Nombre" maxlength="40" style="flex:1;padding:8px 10px;border:1.5px solid var(--crema-oscura);border-radius:8px;font-family:Georgia,serif;font-size:0.9rem;outline:none;" />
+        <button class="btn-mini">OK</button>
+      </div>
+    `;
+    const input = sheet.querySelector('input');
+    input.focus();
+    sheet.querySelector('.btn-mini').addEventListener('click', () => {
+      const nombre = input.value.trim();
+      if (nombre) {
+        if (!compras.categorias.includes(nombre)) compras.categorias.push(nombre);
+        agregarItemCompra(texto, nombre, false);
+        cerrarSheet();
       }
     });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') sheet.querySelector('.btn-mini').click(); });
+  });
+  lista.appendChild(btn);
+}
+
+function agregarItemCompra(texto, categoria, crearCategoria) {
+  if (crearCategoria && !compras.categorias.includes(categoria)) {
+    compras.categorias.push(categoria);
+  }
+  compras.items.push({
+    id: Date.now(),
+    texto,
+    categoria,
+    comprado: false,
+    fecha: formatearFechaHora(new Date()).split(' — ')[0]
+  });
+  guardarCompras();
+  renderSecciones();
+  entrada.focus();
+}
+
+function mostrarSheet(fn) {
+  overlay.classList.add('visible');
+  fn();
+}
+
+function cerrarSheet() {
+  overlay.classList.remove('visible');
+  sheet.innerHTML = '';
+}
+
+overlay.addEventListener('click', e => { if (e.target === overlay) cerrarSheet(); });
+
+// ══════════════════════════════════════════
+// CALENDARIO
+// ══════════════════════════════════════════
+
+let calFecha = new Date();
+
+btnCal.addEventListener('click', () => {
+  calendario.classList.toggle('abierto');
+  if (calendario.classList.contains('abierto')) renderCalendario();
+});
+
+document.getElementById('cal-prev').addEventListener('click', () => {
+  calFecha.setMonth(calFecha.getMonth() - 1);
+  renderCalendario();
+});
+
+document.getElementById('cal-next').addEventListener('click', () => {
+  calFecha.setMonth(calFecha.getMonth() + 1);
+  renderCalendario();
+});
+
+function renderCalendario() {
+  const hoy   = new Date();
+  const anio  = calFecha.getFullYear();
+  const mes   = calFecha.getMonth();
+
+  document.getElementById('cal-titulo').textContent =
+    new Date(anio, mes, 1).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+
+  // Días con eventos
+  const diasConEvento = new Set();
+  notas.filter(n => n.categoria === 'Eventos' && n.fechaISO).forEach(n => {
+    const d = new Date(n.fechaISO);
+    if (d.getFullYear() === anio && d.getMonth() === mes) {
+      diasConEvento.add(d.getDate());
+    }
+  });
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  const dias = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
+  dias.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dia-nombre';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  // Primer día del mes (0=dom, ajustamos a lunes=0)
+  const primerDia = new Date(anio, mes, 1).getDay();
+  const offset = primerDia === 0 ? 6 : primerDia - 1;
+  for (let i = 0; i < offset; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-dia vacio';
+    el.textContent = '.';
+    grid.appendChild(el);
   }
 
-  // ── HELPERS ──
-  function icono(cat) {
-    return { Salud: '♡', Pendientes: '○', Eventos: '◇', Diario: '✦' }[cat] || '·';
+  const diasEnMes = new Date(anio, mes + 1, 0).getDate();
+  for (let d = 1; d <= diasEnMes; d++) {
+    const el = document.createElement('div');
+    el.className = 'cal-dia';
+    el.textContent = d;
+    if (d === hoy.getDate() && mes === hoy.getMonth() && anio === hoy.getFullYear()) {
+      el.classList.add('hoy');
+    }
+    if (diasConEvento.has(d)) el.classList.add('tiene-evento');
+    grid.appendChild(el);
   }
+}
 
-  function setEstado(html) { estadoEl.innerHTML = html; }
+// ══════════════════════════════════════════
+// NOTIFICACIONES DE EVENTOS
+// ══════════════════════════════════════════
 
-  function cargarNotas() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-    catch { return []; }
-  }
+async function pedirPermisoNotif() {
+  if (!('Notification' in window)) return false;
+  if (Notification.permission === 'granted') return true;
+  if (Notification.permission === 'denied') return false;
+  return (await Notification.requestPermission()) === 'granted';
+}
 
-  function guardarNotas() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notas));
-  }
-
-  function escapeHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  // ── SERVICE WORKER ──
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
-  }
-
-  // ══════════════════════════════════════════
-  // NOTIFICACIONES DE EVENTOS
-  // ══════════════════════════════════════════
-
-  const NOTIF_KEY = 'annotta_notificaciones';
-
-  function cargarNotificaciones() {
-    try { return JSON.parse(localStorage.getItem(NOTIF_KEY)) || []; }
-    catch { return []; }
-  }
-
-  function guardarNotificaciones(lista) {
-    localStorage.setItem(NOTIF_KEY, JSON.stringify(lista));
-  }
-
-  async function pedirPermisoNotificaciones() {
-    if (!('Notification' in window)) return false;
-    if (Notification.permission === 'granted') return true;
-    if (Notification.permission === 'denied') return false;
-    const result = await Notification.requestPermission();
-    return result === 'granted';
-  }
-
-  async function mostrarNotificacion(titulo, cuerpo) {
-    if (Notification.permission !== 'granted') return;
+async function mostrarNotificacion(titulo, cuerpo) {
+  if (Notification.permission !== 'granted') return;
+  try {
     const reg = await navigator.serviceWorker.ready;
     reg.showNotification(titulo, {
       body: cuerpo,
       icon: '/icons/icon-192.png',
-      badge: '/icons/icon-192.png',
       vibrate: [200, 100, 200],
       tag: titulo
     });
+  } catch {
+    new Notification(titulo, { body: cuerpo });
   }
+}
 
-  function programarNotificacionesDeEvento(id, nombre, fechaISO) {
-    const fechaEvento = new Date(fechaISO);
-    if (isNaN(fechaEvento.getTime())) return;
+function programarAlarmas(id, nombre, fechaISO) {
+  const fechaEvento = new Date(fechaISO);
+  if (isNaN(fechaEvento.getTime())) return false;
 
-    // Notificación 1: día anterior a las 20:00
-    const diaPrevio = new Date(fechaEvento);
-    diaPrevio.setDate(diaPrevio.getDate() - 1);
-    diaPrevio.setHours(20, 0, 0, 0);
+  const diaPrevio = new Date(fechaEvento);
+  diaPrevio.setDate(diaPrevio.getDate() - 1);
+  diaPrevio.setHours(20, 0, 0, 0);
 
-    // Notificación 2: 1 hora antes del evento
-    const unaHoraAntes = new Date(fechaEvento.getTime() - 60 * 60 * 1000);
+  const unaHoraAntes = new Date(fechaEvento.getTime() - 60 * 60 * 1000);
 
-    const pendientes = cargarNotificaciones();
+  const ahora     = Date.now();
+  const MAX_DELAY = 2147483647;
+  const lista     = JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]')
+    .filter(n => n.eventoId !== id);
 
-    // Evitar duplicados para el mismo id
-    const filtradas = pendientes.filter(n => n.eventoId !== id);
+  let programadas = 0;
 
-    if (diaPrevio > new Date()) {
-      filtradas.push({
-        eventoId: id,
-        tipo: 'dia-previo',
-        titulo: 'Mañana: ' + nombre,
-        cuerpo: 'Tenés un evento mañana.',
-        dispararEn: diaPrevio.toISOString(),
-        disparado: false
-      });
-    }
-
-    if (unaHoraAntes > new Date()) {
-      filtradas.push({
-        eventoId: id,
-        tipo: 'una-hora',
-        titulo: 'En 1 hora: ' + nombre,
-        cuerpo: 'Tu evento comienza en 1 hora.',
-        dispararEn: unaHoraAntes.toISOString(),
-        disparado: false
-      });
-    }
-
-    guardarNotificaciones(filtradas);
-    agendarTimeouts();
-  }
-
-  // Timers activos (para limpiarlos si hace falta)
-  const _timers = [];
-
-  function agendarTimeouts() {
-    // Limpiar timers previos
-    _timers.forEach(t => clearTimeout(t));
-    _timers.length = 0;
-
-    const ahora = Date.now();
-    const MAX_DELAY = 2147483647; // límite de setTimeout (~24.8 días)
-
-    cargarNotificaciones().forEach(n => {
-      if (n.disparado) return;
-      const delay = new Date(n.dispararEn).getTime() - ahora;
-      if (delay < 0 || delay > MAX_DELAY) return;
-
-      const t = setTimeout(async () => {
-        await mostrarNotificacion(n.titulo, n.cuerpo);
-        // Marcar como disparada
-        const lista = cargarNotificaciones();
-        const idx = lista.findIndex(x => x.eventoId === n.eventoId && x.tipo === n.tipo);
-        if (idx !== -1) { lista[idx].disparado = true; guardarNotificaciones(lista); }
-      }, delay);
-
-      _timers.push(t);
-    });
-  }
-
-  function mostrarNotificacionesPerdidas() {
-    const ahora = Date.now();
-    const lista = cargarNotificaciones();
-    let huboMisses = false;
-
-    lista.forEach(n => {
-      if (n.disparado) return;
-      const t = new Date(n.dispararEn).getTime();
-      if (t < ahora) {
-        // Se perdió porque la app estaba cerrada
-        mostrarBannerPerdida(n.titulo);
-        n.disparado = true;
-        huboMisses = true;
+  [[diaPrevio, 'dia-previo', `Mañana: ${nombre}`, 'Tenés un evento mañana.'],
+   [unaHoraAntes, 'una-hora', `En 1 hora: ${nombre}`, 'Tu evento empieza en 1 hora.']
+  ].forEach(([fecha, tipo, titulo, cuerpo]) => {
+    const delay = fecha.getTime() - ahora;
+    if (delay > 0) {
+      lista.push({ eventoId: id, tipo, titulo, cuerpo, dispararEn: fecha.toISOString(), disparado: false });
+      if (delay <= MAX_DELAY) {
+        setTimeout(async () => {
+          await mostrarNotificacion(titulo, cuerpo);
+          const l = JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]');
+          const i = l.findIndex(x => x.eventoId === id && x.tipo === tipo);
+          if (i !== -1) { l[i].disparado = true; localStorage.setItem(NOTIF_KEY, JSON.stringify(l)); }
+        }, delay);
       }
+      programadas++;
+    }
+  });
+
+  localStorage.setItem(NOTIF_KEY, JSON.stringify(lista));
+  return programadas > 0;
+}
+
+async function procesarEventoNuevo(id, texto, fechaMostrada) {
+  const permiso = await pedirPermisoNotif();
+  if (!permiso) {
+    setEstado('⚠ Activá las notificaciones para recibir alarmas');
+    setTimeout(() => setEstado(''), 3000);
+    return;
+  }
+
+  setEstado('<span class="spinner"></span> Detectando fecha del evento…');
+
+  try {
+    const resp = await fetch('/api/extraer-fecha', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texto })
     });
 
-    if (huboMisses) guardarNotificaciones(lista);
-  }
+    if (!resp.ok) throw new Error('sin respuesta');
+    const data = await resp.json();
 
-  function mostrarBannerPerdida(titulo) {
-    const bannersEl = document.getElementById('banners');
-    const div = document.createElement('div');
-    div.className = 'banner-perdida';
-    div.innerHTML = `<span>⏰ ${escapeHtml(titulo)}</span><button class="banner-cerrar" aria-label="Cerrar">×</button>`;
-    div.querySelector('.banner-cerrar').addEventListener('click', () => div.remove());
-    bannersEl.appendChild(div);
-  }
-
-  async function procesarEventoNuevo(id, texto) {
-    const permiso = await pedirPermisoNotificaciones();
-    if (!permiso) return;
-
-    try {
-      const resp = await fetch('/api/extraer-fecha', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ texto })
-      });
-      if (!resp.ok) return;
-      const data = await resp.json();
-      if (data.error || !data.fechaISO) return;
-
-      programarNotificacionesDeEvento(id, data.nombre || texto.slice(0, 40), data.fechaISO);
-    } catch {
-      // Sin conexión: sin notificaciones
+    if (data.error || !data.fechaISO) {
+      setEstado('ℹ No encontré fecha en el evento — agregala manualmente');
+      setTimeout(() => setEstado(''), 3000);
+      return;
     }
+
+    const ok = programarAlarmas(id, data.nombre || texto.slice(0, 40), data.fechaISO);
+    if (ok) {
+      setEstado(`🔔 Alarmas programadas para <strong>${escapeHtml(data.nombre || 'el evento')}</strong>`);
+    } else {
+      setEstado('ℹ El evento ya pasó — no se programaron alarmas');
+    }
+  } catch {
+    setEstado('⚠ Sin conexión — alarmas no programadas');
   }
 
-  // ── INICIALIZAR AL ABRIR ──
-  mostrarNotificacionesPerdidas();
-  agendarTimeouts();
+  setTimeout(() => setEstado(''), 4000);
+}
 
-  // ── RENDER INICIAL ──
-  renderSecciones();
+function revisarNotificacionesPerdidas() {
+  const ahora = Date.now();
+  const lista  = JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]');
+  let cambios  = false;
+
+  lista.forEach(n => {
+    if (!n.disparado && new Date(n.dispararEn).getTime() < ahora) {
+      mostrarBanner(`⏰ ${n.titulo}`);
+      n.disparado = true;
+      cambios = true;
+    }
+  });
+
+  if (cambios) localStorage.setItem(NOTIF_KEY, JSON.stringify(lista));
+}
+
+function reactivarTimeouts() {
+  const ahora    = Date.now();
+  const MAX      = 2147483647;
+  const lista    = JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]');
+
+  lista.filter(n => !n.disparado).forEach(n => {
+    const delay = new Date(n.dispararEn).getTime() - ahora;
+    if (delay > 0 && delay <= MAX) {
+      setTimeout(async () => {
+        await mostrarNotificacion(n.titulo, n.cuerpo);
+        const l = JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]');
+        const i = l.findIndex(x => x.eventoId === n.eventoId && x.tipo === n.tipo);
+        if (i !== -1) { l[i].disparado = true; localStorage.setItem(NOTIF_KEY, JSON.stringify(l)); }
+      }, delay);
+    }
+  });
+}
+
+function mostrarBanner(msg) {
+  const div = document.createElement('div');
+  div.className = 'banner';
+  div.innerHTML = `<span>${escapeHtml(msg)}</span><button class="banner-cerrar">×</button>`;
+  div.querySelector('.banner-cerrar').addEventListener('click', () => div.remove());
+  bannersEl.appendChild(div);
+}
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+
+function formatearFechaHora(d) {
+  const fecha = d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const hora  = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+  return `${fecha} — ${hora} hs`;
+}
+
+function setEstado(html) { estadoEl.innerHTML = html; }
+
+function cargarNotas() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+
+function guardarNotas() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(notas));
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── SERVICE WORKER ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+
+// ── INICIO ──
+revisarNotificacionesPerdidas();
+reactivarTimeouts();
+renderSecciones();
 </script>
 </body>
 </html>
