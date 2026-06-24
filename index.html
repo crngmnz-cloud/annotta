@@ -454,8 +454,7 @@ async function guardar() {
   setEstado('<span class="spinner"></span> Clasificando…');
   btnGuardar.disabled = true;
 
-  let categoria = 'Diario';
-  let subcategoria = null;
+  let items = [{ texto, categoria: 'Diario' }];
 
   try {
     const ctrl = new AbortController();
@@ -469,42 +468,47 @@ async function guardar() {
     clearTimeout(tOut);
     if (resp.ok) {
       const data = await resp.json();
-      categoria    = data.categoria || 'Diario';
-      subcategoria = data.items     || (data.subcategoria ? [{ texto, subcategoria: data.subcategoria }] : null);
+      if (Array.isArray(data.items) && data.items.length) items = data.items;
     }
   } catch { /* sin conexión o timeout: guarda como Diario */ }
 
   btnGuardar.disabled = false;
   setEstado('');
+  entrada.value = '';
 
-  if (categoria === 'Compras') {
-    entrada.value = '';
-    // subcategoria es ahora un array de {texto, subcategoria}
-    const items = Array.isArray(subcategoria) && subcategoria.length
-      ? subcategoria
-      : [{ texto, subcategoria: compras.categorias[0] }];
-    confirmarCompra(items);
+  // Ítem único no-Compras → guardar directo sin sheet
+  if (items.length === 1 && items[0].categoria !== 'Compras') {
+    guardarItem(items[0]);
+    const cat = items[0].categoria;
+    setEstado(`Guardado en <strong>${cat}</strong>`);
+    setTimeout(() => setEstado(''), 2500);
+    entrada.focus();
     return;
   }
 
+  // Múltiples ítems o Compras → mostrar sheet de confirmación
+  confirmarItems(items);
+  entrada.focus();
+}
+
+// Guarda un ítem individual en su sección correspondiente
+function guardarItem(it) {
+  if (it.categoria === 'Compras') {
+    agregarItemCompra(it.texto, it.subcategoria || compras.categorias[0],
+      it.subcategoria && !compras.categorias.includes(it.subcategoria));
+    return;
+  }
   const ahora = new Date();
   const nota = {
-    id: Date.now(),
-    texto,
-    categoria,
+    id: Date.now() + Math.random(), // evitar colisiones en guardado múltiple
+    texto: it.texto,
+    categoria: it.categoria,
     fecha: formatearFechaHora(ahora),
     fechaISO: ahora.toISOString()
   };
-
   notas.push(nota);
   guardarNotas();
-  renderSecciones();
-  entrada.value = '';
-  setEstado(`Guardado en <strong>${categoria}</strong>`);
-  setTimeout(() => setEstado(''), 2500);
-  entrada.focus();
-
-  if (categoria === 'Eventos') procesarEventoNuevo(nota.id, texto, nota.fecha);
+  if (it.categoria === 'Eventos') procesarEventoNuevo(nota.id, it.texto, nota.fecha);
 }
 
 // ══════════════════════════════════════════
@@ -718,95 +722,81 @@ function mostrarInputNuevaCat(wrapper) {
 }
 
 // ── BOTTOM SHEET: confirmación de subcategoría ──
-// items = [{ texto, subcategoria }]
-function confirmarCompra(items) {
-  // Estado editable de cada ítem (la usuaria puede cambiar la subcategoría)
+const CAT_COLOR = { Salud:'#C0435A', Pendientes:'#7A5C8A', Eventos:'#4A7A9B', Diario:'#8A7A5A', Compras:'#5A8A5A' };
+
+// items = [{ texto, categoria, subcategoria? }]
+function confirmarItems(items) {
+  // Estado mutable de cada ítem
   const estado = items.map(it => ({
     texto: it.texto,
-    subcat: compras.categorias.includes(it.subcategoria)
-      ? it.subcategoria
-      : (it.subcategoria || compras.categorias[0])  // puede ser nueva
+    categoria: it.categoria || 'Diario',
+    subcat: it.categoria === 'Compras'
+      ? (it.subcategoria || compras.categorias[0])
+      : (it.subcategoria || null)
   }));
 
-  function renderSheet() {
+  mostrarSheet(() => {
     sheet.innerHTML = `
-      <h3 style="margin-bottom:12px;">Agregar a Compras:</h3>
+      <h3 style="margin-bottom:14px;">¿Así lo guardo?</h3>
       <div id="sheet-items"></div>
-      <div class="sheet-btns" style="margin-top:14px;">
+      <div class="sheet-btns" style="margin-top:16px;">
         <button class="sheet-btn-no">Cancelar</button>
         <button class="sheet-btn-si">Confirmar todo</button>
       </div>
     `;
 
     const contenedor = sheet.querySelector('#sheet-items');
+
     estado.forEach((it, idx) => {
       const fila = document.createElement('div');
-      fila.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;';
-      fila.innerHTML = `
-        <span style="flex:1;font-size:0.88rem;">${escapeHtml(it.texto)}</span>
-        <select data-idx="${idx}" style="padding:5px 8px;border:1px solid var(--crema-oscura);border-radius:7px;font-family:Georgia,serif;font-size:0.8rem;color:var(--borgona);outline:none;background:white;max-width:140px;">
-          ${compras.categorias.map(c => `<option value="${escapeHtml(c)}" ${c === it.subcat ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
-          ${!compras.categorias.includes(it.subcat) ? `<option value="${escapeHtml(it.subcat)}" selected>${escapeHtml(it.subcat)} ✦</option>` : ''}
-        </select>
-      `;
-      fila.querySelector('select').addEventListener('change', e => {
-        estado[idx].subcat = e.target.value;
-      });
+      fila.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;';
+
+      // Badge de categoría
+      const badge = document.createElement('span');
+      badge.textContent = ICONOS[it.categoria] + ' ' + it.categoria;
+      badge.style.cssText = `font-size:0.72rem;padding:2px 7px;border-radius:12px;background:${CAT_COLOR[it.categoria] || '#888'};color:white;white-space:nowrap;`;
+      fila.appendChild(badge);
+
+      // Texto del ítem
+      const txt = document.createElement('span');
+      txt.textContent = it.texto;
+      txt.style.cssText = 'flex:1;font-size:0.88rem;min-width:80px;';
+      fila.appendChild(txt);
+
+      // Selector de subcategoría solo para Compras
+      if (it.categoria === 'Compras') {
+        const sel = document.createElement('select');
+        sel.style.cssText = 'padding:4px 6px;border:1px solid var(--crema-oscura);border-radius:7px;font-family:Georgia,serif;font-size:0.78rem;color:var(--borgona);outline:none;background:white;max-width:130px;';
+        compras.categorias.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c; opt.textContent = c;
+          if (c === it.subcat) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        // Si la subcategoría sugerida es nueva, agregarla como opción
+        if (it.subcat && !compras.categorias.includes(it.subcat)) {
+          const opt = document.createElement('option');
+          opt.value = it.subcat; opt.textContent = it.subcat + ' ✦';
+          opt.selected = true;
+          sel.appendChild(opt);
+        }
+        sel.addEventListener('change', e => { estado[idx].subcat = e.target.value; });
+        fila.appendChild(sel);
+      }
+
       contenedor.appendChild(fila);
     });
 
     sheet.querySelector('.sheet-btn-si').addEventListener('click', () => {
-      estado.forEach(it => agregarItemCompra(it.texto, it.subcat, !compras.categorias.includes(it.subcat)));
+      estado.forEach(it => guardarItem(it));
+      renderSecciones();
       cerrarSheet();
+      setEstado(`✓ ${estado.length} ítem${estado.length > 1 ? 's' : ''} guardado${estado.length > 1 ? 's' : ''}`);
+      setTimeout(() => setEstado(''), 2500);
     });
 
     sheet.querySelector('.sheet-btn-no').addEventListener('click', cerrarSheet);
-  }
-
-  mostrarSheet(renderSheet);
-}
-
-function mostrarPickerCat(texto) {
-  sheet.innerHTML = `<h3>Elegí una categoría:</h3><div class="cat-lista"></div>`;
-  const lista = sheet.querySelector('.cat-lista');
-
-  compras.categorias.forEach(cat => {
-    const btn = document.createElement('button');
-    btn.className = 'cat-opcion';
-    btn.textContent = cat;
-    btn.addEventListener('click', () => {
-      agregarItemCompra(texto, cat, false);
-      cerrarSheet();
-    });
-    lista.appendChild(btn);
   });
-
-  // Nueva categoría
-  const btn = document.createElement('button');
-  btn.className = 'cat-opcion';
-  btn.style.color = 'var(--borgona)';
-  btn.textContent = '+ Nueva categoría';
-  btn.addEventListener('click', () => {
-    sheet.innerHTML = `
-      <h3>Nueva categoría:</h3>
-      <div class="compras-nueva-cat" style="padding:0;border:none;">
-        <input type="text" placeholder="Nombre" maxlength="40" style="flex:1;padding:8px 10px;border:1.5px solid var(--crema-oscura);border-radius:8px;font-family:Georgia,serif;font-size:0.9rem;outline:none;" />
-        <button class="btn-mini">OK</button>
-      </div>
-    `;
-    const input = sheet.querySelector('input');
-    input.focus();
-    sheet.querySelector('.btn-mini').addEventListener('click', () => {
-      const nombre = input.value.trim();
-      if (nombre) {
-        if (!compras.categorias.includes(nombre)) compras.categorias.push(nombre);
-        agregarItemCompra(texto, nombre, false);
-        cerrarSheet();
-      }
-    });
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') sheet.querySelector('.btn-mini').click(); });
-  });
-  lista.appendChild(btn);
 }
 
 function agregarItemCompra(texto, categoria, crearCategoria) {
