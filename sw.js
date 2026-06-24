@@ -1,14 +1,6 @@
-const CACHE_NAME = 'annotta-v4';
-const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json'
-];
+const CACHE_NAME = 'annotta-v5';
 
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
-  );
   self.skipWaiting();
 });
 
@@ -32,12 +24,29 @@ self.addEventListener('notificationclick', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Las llamadas a /api/ nunca van al caché — siempre a la red
-  if (event.request.url.includes('/api/')) {
+  const url = new URL(event.request.url);
+
+  // API: siempre a la red, nunca al caché
+  if (url.pathname.startsWith('/api/')) {
     event.respondWith(fetch(event.request));
     return;
   }
 
+  // HTML: network-first — siempre intenta la red, caché solo si offline
+  if (event.request.mode === 'navigate' || url.pathname === '/' || url.pathname.endsWith('.html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(resp => {
+          const clone = resp.clone();
+          caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
+          return resp;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Otros assets (manifest, sw, iconos): cache-first
   event.respondWith(
     caches.match(event.request).then(cached => cached || fetch(event.request))
   );
