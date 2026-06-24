@@ -22,17 +22,17 @@ export default async function handler(req, res) {
       content: `Analizá este texto y separalo en ítems individuales. Cada ítem puede ser de una categoría distinta. Respondé SOLO con JSON, sin explicación ni markdown.
 
 Categorías:
-- Salud: datos corporales o médicos — pulsaciones, presión, glucosa, peso, temperatura, síntomas, medicamentos (cualquier nombre de medicamento o droga), turnos médicos, análisis
+- Salud: mediciones corporales (pulsaciones, presión, glucosa, peso, temperatura), síntomas físicos o mentales, turnos médicos, resultados de análisis. NO incluye medicamentos si el contexto es comprarlos.
 - Pendientes: tareas, recordatorios, trámites, cosas por hacer
 - Eventos: fechas concretas, citas, reuniones, planes futuros con fecha u hora
-- Compras: productos para comprar, alimentos, ingredientes, materiales, herramientas
+- Compras: productos para comprar — alimentos, ingredientes, materiales, herramientas, Y TAMBIÉN medicamentos cuando el contexto es comprarlos (subcategoría "Farmacia")
 - Diario: pensamientos, sentimientos, reflexiones (solo si no encaja en ninguna otra)
 
 Subcategorías para Compras: ${subcats}
 
 REGLAS:
 - Separar el texto en todos sus ítems individuales aunque sean de categorías distintas
-- Para Compras incluir subcategoría; para Salud incluir "subcategoria":"Medicamentos" si es un medicamento
+- Medicamentos en contexto de compra → Compras / Farmacia. Medicamentos en contexto de haberlos tomado o prescriptos → Salud
 - Si el texto es una sola idea unificada (no una lista), devolver un solo ítem
 
 Formato siempre: {"items":[{"texto":"manzanas","categoria":"Compras","subcategoria":"Frutas y Verduras"},{"texto":"seretide diskus","categoria":"Salud","subcategoria":"Medicamentos"}]}
